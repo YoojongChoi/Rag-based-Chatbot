@@ -1,4 +1,6 @@
 # Rag-based-Chatbot
+- 진행중...
+  
 - Dense Vector만 사용 (추후에 **Hybrid Rag** 로 바뀔 예정)
 - 현재 llm 모델은 chatgpt 4o (추후에 deepseek와 비교 예정)
 - 프론트와 백은 따로 진행중에 있음
