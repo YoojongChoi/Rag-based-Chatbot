@@ -16,8 +16,7 @@
 
 
 ## 구조
-![Image](https://github.com/user-attachments/assets/14675568-4327-40a4-93d5-9f96bbec4c82)
-
+![Image](https://github.com/user-attachments/assets/26304e2c-469d-4501-8f6b-04594f4c132d)
 ## 간단한 코드 설명
 - **vectorstore를 저장하기 위해:** 'upload' 폴더생성하여 필요한 md파일 올리기 -> create_md_files.py 실행 -> save_vectorstore.py 실행
 - **광운대 챗봇:** kw_chat_bot.py 실행 (단, vectorstore가 존재해야함) 
