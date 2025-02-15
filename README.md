@@ -1,12 +1,32 @@
-# Rag-based-Chatbot
-- 진행중...
-  
-- Dense Vector만 사용 (추후에 **Hybrid Rag** 로 바뀔 예정)
+## 🔍Project Overview
+
+### 📌 Title
+- Rag-based-Chatbot
+
+### 📌 Objective
+- The goal of this project is to develop a chatbot that provides personalized academic information to students at Kwangwoon University by utilizing Retrieval-Augmented Generation (RAG) technology. The chatbot analyzes each student's progress toward fulfilling graduation requirements and offers detailed guidance for areas needing improvement. Additionally, it aims to enhance students' academic and daily convenience by providing both academic information (e.g., course details, professor information) and lifestyle information (e.g., recommendations for local restaurants near campus, school schedules).
+
+### 📌 Structure
+![Image](https://github.com/user-attachments/assets/26304e2c-469d-4501-8f6b-04594f4c132d)
+
+### 📌 Duration
+- 2025.01 ~ (In progress)
+
+## 🧑‍🤝‍🧑Team Member
+양문석: Web 
+윤서정: Web
+최유종: RAG
+최지원: RAG
+
+
+## 📝메모장
+
+- Naive Rag, Dense Vector만 사용 (추후에 **Hybrid Rag** 로 바뀔 예정)
 - 현재 llm 모델은 chatgpt 4o (추후에 deepseek와 비교 예정)
 - 프론트와 백은 따로 진행중에 있음
 
 
-## 간단한 소개
+### 간단한 소개
 - 광운대학교 학생을 위한 챗봇
 - 대답 가능 분야 (졸업, 음식, 강의평가, 학사정보)
 - **졸업:** 학생의 klas 아이디와 비번을 입력받아서 크롤링을 통해 개인정보 긁어옴 -> 개인정보를 졸업조건과 비교야하여 충족 여부 알려줌
@@ -15,9 +35,8 @@
 - **학사정보:** 글로벌인재트랙인증제 충족 여부 등
 
 
-## 구조
-![Image](https://github.com/user-attachments/assets/26304e2c-469d-4501-8f6b-04594f4c132d)
-## 간단한 코드 설명
+
+### 간단한 코드 설명
 - **vectorstore를 저장하기 위해:** 'upload' 폴더생성하여 필요한 md파일 올리기 -> create_md_files.py 실행 -> save_vectorstore.py 실행
 - **광운대 챗봇:** kw_chat_bot.py 실행 (단, vectorstore가 존재해야함) 
 
