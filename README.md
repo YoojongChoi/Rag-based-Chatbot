@@ -56,21 +56,21 @@
 - **광운대 챗봇:** kw_chat_bot.py 실행 (단, vectorstore가 존재해야함) 
 
 
-### **create_md_files.py**
+#### **create_md_files.py**
 - 'upload'폴더에 있는 md 파일을 읽어 카테고리 별로 파일 생성하여 (필요하다면 해당 md 파일을 수정하여) 분류  
+- crawling.py 통해 크롤링하여 md에 저장
+
+#### **crawling.py**
+- 크롤링 관련 모든 코드들
 
 
-### **crawling.py**
-- 크롤링 관련 모든 코드들 (현재: **학생 klas 개인정보**, **에타 강의평**)
-
-
-### **save_vectorstore.py**
-- **create_md_files.py**에서 카테고리별 분류한 md파일들을 split하여 FAISS vectorstore에 저장함.
+#### **save_vectorstore.py**
+- **create_md_files.py**에서 카테고리별 분류한 md파일들을 **필요시 split하여 FAISS vectorstore에 저장함.**
 - split 필요없는 것(하나의 chunk)은 FAISS에 저장 안함, 필요시 md파일 부름 
 
 
-### **kw_chat_bot.py**
-- klas 아이디와 비번으로 개인정보를 긁어와 저장되어 있는 vectorstore 의 정보를 통해 사용자의 질문에 대한 답변 생성
+#### **kw_chat_bot.py**
+- 처음에만 klas ID & PW로 개인정보를 긁어와, 저장되어 있는 vectorstore 의 정보를 통해 사용자의 질문에 대한 답변 생성, **장기 기억 가능** 
 
 
 
