@@ -13,6 +13,20 @@
 ### 📌 Duration
 - 2025.01 ~ (In progress)
 
+### [주의 사항]
+#### ID, PW 입력 까먹지 않기
+- create_md_files.py 코드에서 make_md_via_crawling(ID, PW) 함수에 everytime ID, PW 적기 
+- kw_chat_bot.py 코드에서 get_personal_info(ID, PW) 함수에 klas ID, PW 적기
+
+
+#### 크롤링 오래 걸림 주의
+- crawling.py 코드에서 lectureEval_everytime 함수, "break #to stop early" 존재함
+이 부분을 없애야 모든 강의 다 긁어옴. (주의, 몇시간 정도 소요)
+
+-  crawling.py 코드에서 food_naver__maps 함수, "page_down(10)" 존재함
+숫자를 크게 할 수록 더 많은 식당 긁어옴. (10: 식당 20개, 40: 식당 60개)
+
+
 ## 🧑‍🤝‍🧑Team Member
 양문석: Web 
 윤서정: Web
