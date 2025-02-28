@@ -7,7 +7,8 @@
 - The goal of this project is to develop a chatbot that provides personalized academic information to students at Kwangwoon University by utilizing Retrieval-Augmented Generation (RAG) technology. The chatbot analyzes each student's progress toward fulfilling graduation requirements and offers detailed guidance for areas needing improvement. Additionally, it aims to enhance students' academic and daily convenience by providing both academic information (e.g., course details, professor information) and lifestyle information (e.g., recommendations for local restaurants near campus, school schedules).
 
 ### 📌 Structure
-![Image](https://github.com/user-attachments/assets/26304e2c-469d-4501-8f6b-04594f4c132d)
+![Image](https://github.com/user-attachments/assets/9f1b6372-eb7f-4e88-b16c-e157e98c4855)
+![Image](https://github.com/user-attachments/assets/7c43a3da-a7e4-41ed-b13f-9253739a1594)
 
 ### 📌 Duration
 - 2025.01 ~ (In progress)
