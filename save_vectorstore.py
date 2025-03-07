@@ -7,6 +7,10 @@ from langchain_community.vectorstores.utils import DistanceStrategy
 import re
 import os
 
+
+current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
+
+
 # 하나만 빠르게 save하고 싶을 때
 def test_file():
     split_configs = {
@@ -28,7 +32,7 @@ def test_file():
         "chunk_overlap": 0  # No overlap
     }
 
-    test_file = "upload\\Graduation\\2025_1_grad_requirement_p19_29_credits.md"
+    test_file = current_dir + "upload\\Graduation\\2025_1_grad_requirement_p19_29_credits.md"
 
     # 문서 로드
     test_doc = {}
@@ -48,7 +52,7 @@ def test_file():
 
 
 
-        if test_file == 'md/grads/major/majors.md':  # majors metadata
+        if test_file == current_dir + 'md/grads/major/majors.md':  # majors metadata
             for idx, chunk in enumerate(splits):
                 metadata_id = idx
                 chunk.metadata = {'id': metadata_id}
@@ -73,7 +77,7 @@ def test_file():
     # md_files 처음꺼만 vectorstore 저장
     for key, value in test_doc.items():
         # FAISS 벡터 저장소 저장하기
-        address = f'db\\{key[7:-3]}'
+        address = current_dir + f'db\\{(key.replace(current_dir, ""))[7:-3]}'
         vectorstore = FAISS.from_documents(value, embedding=embeddings_model, distance_strategy=DistanceStrategy.COSINE)
         vectorstore.save_local(address)
 
@@ -82,7 +86,7 @@ def test_file():
 def find_md_files():
 
     md_files = []
-    for root, dirs, files in os.walk('upload'):
+    for root, dirs, files in os.walk(current_dir + 'upload'):
         if root == 'upload':  # 최상위 'upload' 폴더는 건너뜀
             continue
         for file_name in files:
@@ -187,7 +191,7 @@ def embedding_save_files(docs):
     # 각 md 파일 마다 vectorstore 만들기
     for key, value in docs.items():
         # FAISS 벡터 저장소 저장하기
-        address = f'db\\{key[7:-3]}'
+        address = current_dir + f'db\\{(key.replace(current_dir, ""))[7:-3]}'
         vectorstore = FAISS.from_documents(value, embedding=embeddings_model, distance_strategy=DistanceStrategy.COSINE)
         vectorstore.save_local(address)
 

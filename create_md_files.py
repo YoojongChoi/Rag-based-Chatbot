@@ -14,6 +14,9 @@ from selenium.common.exceptions import TimeoutException
 import crawling
 
 
+current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
+
+
 class UnionFind:
     def __init__(self):
         self.parent = {}
@@ -43,7 +46,7 @@ def update_dictionary(dictionary, synonym_mapping):
 
 def make_folders():
     # upload 폴더
-    upload_path = "upload"
+    upload_path = current_dir + "upload"
     if not os.path.exists(upload_path):
         os.makedirs(upload_path)
 
@@ -71,7 +74,7 @@ def modify_uploaded_md():
 
 
     for md in raw_mds:
-        file_path = os.path.join('upload', md)
+        file_path = os.path.join(current_dir + 'upload', md)
         if md == '2025_1_grad_requirement_p19_29.md':
             out_split_1 = []
             out_split_2 = []
@@ -104,9 +107,9 @@ def modify_uploaded_md():
             # 결과를 파일로 저장
             name_1 = '2025_1_grad_requirement_p19_29_credits.md'
             name_2 = '2025_1_grad_requirement_p19_29_liberal_arts.md'
-            with open('upload/Graduation/Credits/' + name_1 , "w", encoding="utf-8") as file1:
+            with open(current_dir + 'upload/Graduation/Credits/' + name_1 , "w", encoding="utf-8") as file1:
                 file1.writelines(out_split_1)
-            with open('upload/Graduation/LiberalArts/' + name_2, "w", encoding="utf-8") as file2:
+            with open(current_dir + 'upload/Graduation/LiberalArts/' + name_2, "w", encoding="utf-8") as file2:
                 file2.writelines(out_split_2)
 
         if md == '2025_1_grad_curriculum_p101_103.md':
@@ -226,7 +229,7 @@ def modify_uploaded_md():
 
 
 
-            save_to_md('upload/Graduation/ProgramEngineering/2025_1_grad_engineer_subj_p45_49.md', 'dictionary', result)
+            save_to_md(current_dir + 'upload/Graduation/ProgramEngineering/2025_1_grad_engineer_subj_p45_49.md', 'dictionary', result)
         if md == '2025_1_grad_engineer_msi_p50_73.md':
             with open(file_path, "r", encoding="utf-8") as f:
                 markdown_content = f.read()
@@ -316,26 +319,26 @@ def modify_uploaded_md():
                                 md_dict[key_current] = md_dict[key_candidate]
                                 break
 
-            save_to_md('upload/Graduation/ProgramEngineering/2025_1_grad_engineer_msi_p50_73.md', 'dictionary', md_dict)
+            save_to_md(current_dir + 'upload/Graduation/ProgramEngineering/2025_1_grad_engineer_msi_p50_73.md', 'dictionary', md_dict)
 
         if md == '2025_1_grad_majors.md':
             with open(file_path, "r", encoding="utf-8") as f:
                 markdown_content = f.read()
-            with open('upload/Graduation/Major/' + md, "w", encoding="utf-8") as file:
+            with open(current_dir + 'upload/Graduation/Major/' + md, "w", encoding="utf-8") as file:
                 file.write(markdown_content)
 
     curriculum_summary = update_dictionary(curriculum_summary, synonym_mapping) # kw_chat_bot.py에서 고려: 3,4학점 과목만 인정됨(체육실기,음악실기,미술실기과목은 3학점이더라도 균형교양과목에서 제외)
-    save_to_md('upload/Graduation/LiberalArts/curriculum_summary.md', 'dictionary', curriculum_summary)
+    save_to_md(current_dir + 'upload/Graduation/LiberalArts/curriculum_summary.md', 'dictionary', curriculum_summary)
 
 
 def make_md_via_crawling():
     # 강의 평가 - everytime 크롤링
     evaluation = crawling.lectureEval_everytime('', '')
-    save_to_md('upload/Course/course/course_evaluation.md', 'list_in_dictionary', evaluation)
+    save_to_md(current_dir + 'upload/Course/course/course_evaluation.md', 'list_in_dictionary', evaluation)
 
     # 음식 - 네이버 지도 크롤링
     restaurants = crawling.food_naver_maps()
-    save_to_md('upload/Food/food/kw_restaurants.md', 'list_in_dictionary', restaurants)
+    save_to_md(current_dir + 'upload/Food/food/kw_restaurants.md', 'list_in_dictionary', restaurants)
 
 
 def save_to_md(filename, data_type, data):
