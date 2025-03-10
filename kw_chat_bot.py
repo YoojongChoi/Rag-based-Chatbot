@@ -16,9 +16,8 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from typing import List, Dict
 from datetime import datetime
+import base64
 
-
-current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
 
 
 def format_docs(docs):
@@ -28,6 +27,10 @@ def format_docs(docs):
 def get_personal_info(stu_id, stu_pw):
     stu_info_dict = crawling.personalInfo(stu_id, stu_pw)
     return stu_info_dict
+
+def encode_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode("utf-8")
 
 
 class VectorStoreManager:
@@ -52,7 +55,7 @@ class VectorStoreManager:
         if not self._visited[category]:
             print(f"{category} Vectorstore 로드중")
             try:
-                category_path = os.path.join(current_dir + f'./db/{category}')
+                category_path = os.path.join(f'./db/{category}')
                 for topic_folder in os.listdir(category_path):
                     topic_folder_path = os.path.join(f'{category_path}/{topic_folder}')
 
@@ -101,35 +104,15 @@ class LlmManager:
                 1. Graduation: Questions related to requirements or conditions needed for graduation.
                 2. Food: Questions related to food, such as recommendations or information.
                 3. Course: Questions about course evaluations or recommendations.
-                4. Academic Info: Questions about school announcements or academic-related information.
+                4. Academic Info: Questions about school announcements.
                 5. None: If the question does not fit any of the above categories.
 
-                Question: {question}
+                [Question]
+                {question}
+                
                 Category Name:
                 '''
-        elif self._llm_type == 'summarize':
-            self._template = '''
-            다음 글의 핵심 내용을 유지하면서 요약해 주세요.
 
-            ### 주의사항: 
-            학생이 충족한 부분에 대해서는 충족되었다고 명시하고,
-            학생이 충족하지 못한 부분에 대해서는 자세하게 작성해주세요. 
-
-            ### 요약할 내용:
-            {words}
-
-            '''
-        elif self._llm_type == 'answer':
-            self._template = '''
-            사용자의 정보를 자세히 읽고 질문에 답을 해주세요.
-
-            ### 사용자의 정보:
-            {words}
-
-            ### 질문:
-            {question}
-
-            '''
 
         # [졸업 카테고리]
         elif self._llm_type == 'grad_credits_table':
@@ -193,11 +176,14 @@ class LlmManager:
             -   **key: '필수교양'** 
                 **value:** '필수교양'행에 기재된 조건을 요약합니다. _(참고: 학점에 대한 정보는 제외)_
             -   **key: '균형교양'**  
-                **value:** '균형교양' 행의 마지막 열에 해당하는 조건을 요약합니다. _(참고: 학점 관련 정보는 제외)_
+                **value:** '균형교양' 행의 마지막 열에 해당하는 조건을 요약합니다. **총 영역, 포함 영역, 과목 수**를 포함하면 되는데 포함 영역에 대한 정보가 없을 경우 1로 표기
 
             ### 출력 요건
             - 추출한 딕셔너리만 출력하세요.
-            - 추출을 잘할시 팁 $100 와 당근 500개를 드리겠습니다.
+        
+            ### 출력 예시
+            - "총 8영역, 4영역 포함, 10과목"
+            - "총 7영역, 1영역 포함, 7과목"    
             '''
         elif self._llm_type == 'grad_liberalArts':
             self._template = '''
@@ -354,12 +340,10 @@ class LlmManager:
     def get_chat_history_chain(self):
         prompt = ChatPromptTemplate.from_messages(
             [
-                (
-                    "system",
-                    "You are a helpful Kwangwoon University assistant. Answer all questions to the best of your ability based on reference data. The provided chat history includes facts about the user you are speaking with.",
-                ),
+                ("system", "You are a helpful and precise Kwangwoon University assistant. Answer the question to the best of your ability based on the reference data. The provided chat history includes facts about the user, you are speaking with.",),
                 ("placeholder", "{chat_history}"),
                 ("placeholder", "{reference_data}"),
+                #("placeholder", "{uploaded_image}"),
                 ("user", "{input}"),
             ]
         )
@@ -369,10 +353,10 @@ class LlmManager:
 
 class MdManager:
     def __init__(self):
-        self._file_path = current_dir
+        self._file_path = None
 
     def set_path(self, file_path):
-        self._file_path += file_path
+        self._file_path = file_path
 
     def get_dictionary(self):
         with open(self._file_path, "r", encoding="utf-8") as f:
@@ -452,7 +436,7 @@ class ConversationMemory:
 if __name__ == '__main__':
     # 기본 세팅
     # os.environ["USER_AGENT"] = os.getenv("USER_AGENT", "MyPythonApp")       # 이부분 이상함
-    dotenv_path = current_dir + "nv.env"
+    dotenv_path = r"C:\Users\user\PycharmProjects\pythonProject\env.env"
     if load_dotenv(dotenv_path):
         print("env 파일이 성공적으로 로드되었습니다.")
     logging.langsmith("Graduation Project")  # LangSmith 추적 설정
@@ -464,12 +448,11 @@ if __name__ == '__main__':
 
     # 대화기록
     memory = ConversationMemory()
-    if os.path.exists(current_dir + 'chat_history'):
+    if os.path.exists('chat_history'):
         memory.load()
 
     # 개인 정보
     #stu_info = get_personal_info('', '')
-
     stu_info = {'학부/학과': '소프트웨어학부 소프트웨어전공', '입학 년도': '2020년도 신입학자', '학번': '2020203068', '이름': '최유종', '학적상황': '4학년 재학',
                 '학위 과정': '공학 프로그램', '전공 학점': '63', '교양 학점': '61', '기타 학점': '8', '총 학점': '132',
                 '수강한 과목': {('리눅스활용실습', '2'), ('데이터통신', '3'), ('중국어HSK연습', '3'), ('산학협력캡스톤설계1', '3'), ('인공지능', '3'),
@@ -482,15 +465,12 @@ if __name__ == '__main__':
                            ('대학수학및연습2', '3'), ('고급C프로그래밍및설계', '3'), ('데이터베이스', '3'), ('컴퓨터구조', '3'), ('중급영어회화', '3'),
                            ('비즈니스영어', '3'), ('초급중국어2', '3'), ('광운인되기', '1'), ('컴퓨팅사고', '3'), ('빅데이터처리및응용', '3'),
                            ('국제회의영어', '3'), ('소프트웨어공학', '3')}}
-
+    reference_data = None
     while True:
         # 질문 ------------------------------------------------------------------------------여기부터 계속 반복
-        # query = '내가 졸업하기 위해 아직 이수하지 않은 과목이 있어?'
         query = input('질문을 작성하세요 (종료: exit): ')
-
         if query == 'exit':
             break
-
 
         # 카테고리 gpt ------------------------------------------------------------
         '''
@@ -500,7 +480,7 @@ if __name__ == '__main__':
         print("gpt가 선택한 카테고리: ----------------------------------")
         print(response)
         '''
-        response = 'Academic Info'
+        response = 'Graduation'
 
         # 해당 category vs 질문  -----------------------------------------------------------------
         match response:
@@ -531,7 +511,6 @@ if __name__ == '__main__':
                                 search_kwargs={'k': 1, 'lambda_mult': 0.5}
                             )
                             chosen_doc = retriever.invoke(stu_info["입학 년도"])
-                            #print("chosen doc: ", chosen_doc)
                             chosen_text = format_docs(chosen_doc)
 
                             llm_manager.set_llm_type('grad_credits_table')  # 학점 표 이해 gpt ---------------------------------------
@@ -550,13 +529,12 @@ if __name__ == '__main__':
                                 'extra_credits': stu_info['기타 학점'],
                                 'tot_credits': stu_info['총 학점'],
                                 'credits_dictionary': table_dict})
-                            print("1. 학점에 대한 평가-------------------------")
-                            print(credit_gpt_response)
+                            print("1. 학점에 대한 평가-------------------------\n", credit_gpt_response)
 
                         # 2. 교양 gpt
                         elif idx == 2:
                             # 교양 균형 영역
-                            md_manager.set_path(current_dir + 'upload/Graduation/LiberalArts/curriculum_summary.md')
+                            md_manager.set_path('upload/Graduation/LiberalArts/curriculum_summary.md')
                             curriculum_summary = md_manager.get_dictionary()
 
                             excluded_subj = {'체육실기', '음악실기', '미술실기'}
@@ -590,8 +568,7 @@ if __name__ == '__main__':
                                 'stu_id': f"{stu_info['학번'][:4]}",
                                 'intersection_summary': intersection_summary,
                             })
-                            print("2. 교양에 대한 평가------------------------")
-                            print(liberalArts_gpt_response)
+                            print("2. 교양에 대한 평가------------------------\n", liberalArts_gpt_response)
 
                         # 3. 전공 gpt
                         elif idx == 3:
@@ -609,8 +586,7 @@ if __name__ == '__main__':
                                 'stu_year': stu_info['입학 년도'],
                                 'stu_sbj': {course[0] for course in stu_info['수강한 과목']},
                                 'major_requirement': chosen_text})
-                            print("3. 전공에 대한 평가 -----------------------")
-                            print(major_gpt_response)
+                            print("3. 전공에 대한 평가 -----------------------\n", major_gpt_response)
 
                         # 4. 공학 인증 gpt (기초교양)
                         elif idx == 4:
@@ -620,22 +596,17 @@ if __name__ == '__main__':
                                     search_type='mmr',
                                     search_kwargs={'k': 1, 'lambda_mult': 0.5}
                                 )
-                                chosen_doc = retriever.invoke(f'# {stu_info["학부/학과"]}_{stu_info["입학 년도"][:4]}')
+                                chosen_doc = retriever.invoke(f'# {stu_info["학부/학과"].split()[0]}_{stu_info["입학 년도"][:4]}')
                                 chosen_text = format_docs(chosen_doc)
 
                                 llm_manager.set_llm_type('grad_engineer_msi_table')  # 표 이해 gpt ----------------------------------
                                 chain = llm_manager.get_chain()
-                                table_info = chain.invoke({
-                                    'msi_table': chosen_text})
+                                table_info = chain.invoke({'msi_table': chosen_text})
 
                                 llm_manager.set_llm_type('grad_engineer_msi')  # msi gpt ------------------------
                                 chain = llm_manager.get_chain()
-                                engineer_msi_response = chain.invoke({
-                                    'msi_info': table_info,
-                                    'attended_sbj': stu_info['수강한 과목']})
-
-                                print("4. 공학인증 MSI에 대한 평가-----------------------------")
-                                print(engineer_msi_response)
+                                engineer_msi_response = chain.invoke({'msi_info': table_info, 'attended_sbj': stu_info['수강한 과목']})
+                                print("4. 공학인증 MSI에 대한 평가-----------------------------\n", engineer_msi_response)
 
                                 # 2. 공학필수 과목
                                 retriever = vecs[1].as_retriever(
@@ -657,8 +628,7 @@ if __name__ == '__main__':
                                     'attended_sbj': {course[0] for course in stu_info['수강한 과목']},
                                     'required_sbj': table_info})
 
-                                print("5. 공학필수과목에 대한 평가 --------------------")
-                                print(engineer_subj_response)
+                                print("5. 공학필수과목에 대한 평가 --------------------\n", engineer_subj_response)
 
 
                     grad_reference_data = '\n\n\n'.join(
@@ -670,7 +640,7 @@ if __name__ == '__main__':
 
             case 'Food':
                 print("음식 평가 카테고리")
-                md_manager.set_path(current_dir + 'upload/Food/food/kw_restaurants.md')
+                md_manager.set_path('upload/Food/food/kw_restaurants.md')
                 content = md_manager.get_content()
 
                 reference_data = [{"role": "user", "content": content}]
@@ -698,18 +668,42 @@ if __name__ == '__main__':
                 print("카테고리 없음")
                 reference_data = [{"role": "user", "content": None}]
 
+        '''
+        # 멀티모달) 이미지 URL 받기----------------------------------------------------------------------------------------
+        image_path = "schedule.jpg"  # 내 시간표임
+        base64_image = encode_image(image_path) if os.path.exists(image_path) else None
+
+        uploaded_image = [
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{base64_image}"   # 이미지 URL만 전달
+                        },
+                    },
+                ],
+            }
+        ]
+        # --------------------------------------------------------------------------------------------------------------
+        '''
 
         final_chain = llm_manager.get_chat_history_chain()
         final_response = final_chain.invoke(
             {"input": query, 'reference_data': reference_data, 'chat_history': memory.search(query)}
         )
-        print("final response: ", final_response)
 
+
+        print("\n\nfinal response: -------------------------------------------\n", final_response)
         memory.add_conversation(query, final_response)
+
+        '''
+        # Test
         print("대화기록 중 질문과 가장 유사한 5개는?: ")
         for i in memory.search(query):
             print(i)
-
+        '''
 
     print("종료합니다.")
     memory.save()
