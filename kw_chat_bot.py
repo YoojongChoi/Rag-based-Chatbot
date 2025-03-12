@@ -220,23 +220,22 @@ class LlmManager:
             당신은 표에서 정보를 추출하는 전문 에이전트입니다.
             주어진 공학인증 표에서 학생 정보와 관련된 행을 정확히 찾아 필요한 데이터를 추출하세요.
 
-            ### 학생 정보:
-            - 학부/학과: {major}
+            [학생 정보]
+            학부/학과: {major}
 
-            ### 공학인증 표:
+            [공학인증 표]
             {engineer_table}
 
-            ___
+            
             ### 출력 지침
-            1. 학생 전공{major}과 일치하는 행을 찾습니다.
-            2. 해당 행에서 **마지막 '전공' 열의 값**을 추출합니다.
+            1. 학생 전공{major}과 가장 비슷한 행을 하나 찾습니다.
+            2. 해당 행에서 **마지막 "전공" 열의 값만 추출**합니다.
 
-            추출한 내용:  
             '''
         elif self._llm_type == 'grad_engineer_subj':
             self._template = '''
             당신은 학생이 공학 필수 과목을 이수했는지 검토하는 에이전트입니다.
-            아래 **공학 필수 과목**과 **학생 수강 과목**을 바탕으로 필수 과목 이수 여부를 판단하세요.
+            아래 **공학 필수 과목**과 **학생 수강 과목**을 바탕으로 학생이 필수 과목을 모두 이수하였는지 판단하세요.
 
             ### [입력 데이터]
 
@@ -453,6 +452,7 @@ if __name__ == '__main__':
 
     # 개인 정보
     #stu_info = get_personal_info('', '')
+
     stu_info = {'학부/학과': '소프트웨어학부 소프트웨어전공', '입학 년도': '2020년도 신입학자', '학번': '2020203068', '이름': '최유종', '학적상황': '4학년 재학',
                 '학위 과정': '공학 프로그램', '전공 학점': '63', '교양 학점': '61', '기타 학점': '8', '총 학점': '132',
                 '수강한 과목': {('리눅스활용실습', '2'), ('데이터통신', '3'), ('중국어HSK연습', '3'), ('산학협력캡스톤설계1', '3'), ('인공지능', '3'),
@@ -465,6 +465,7 @@ if __name__ == '__main__':
                            ('대학수학및연습2', '3'), ('고급C프로그래밍및설계', '3'), ('데이터베이스', '3'), ('컴퓨터구조', '3'), ('중급영어회화', '3'),
                            ('비즈니스영어', '3'), ('초급중국어2', '3'), ('광운인되기', '1'), ('컴퓨팅사고', '3'), ('빅데이터처리및응용', '3'),
                            ('국제회의영어', '3'), ('소프트웨어공학', '3')}}
+
     reference_data = None
     while True:
         # 질문 ------------------------------------------------------------------------------여기부터 계속 반복
@@ -506,6 +507,7 @@ if __name__ == '__main__':
                     for idx, vecs in enumerate(grad_vecs, start=1):
                         # 1. 학점
                         if idx == 1:
+
                             retriever = vecs[0].as_retriever(
                                 search_type='mmr',
                                 search_kwargs={'k': 1, 'lambda_mult': 0.5}
@@ -533,6 +535,7 @@ if __name__ == '__main__':
 
                         # 2. 교양 gpt
                         elif idx == 2:
+
                             # 교양 균형 영역
                             md_manager.set_path('upload/Graduation/LiberalArts/curriculum_summary.md')
                             curriculum_summary = md_manager.get_dictionary()
@@ -572,6 +575,7 @@ if __name__ == '__main__':
 
                         # 3. 전공 gpt
                         elif idx == 3:
+
                             retriever = vecs[0].as_retriever(
                                 search_type='mmr',
                                 search_kwargs={'k': 1, 'lambda_mult': 0.5}
@@ -598,10 +602,12 @@ if __name__ == '__main__':
                                 )
                                 chosen_doc = retriever.invoke(f'# {stu_info["학부/학과"].split()[0]}_{stu_info["입학 년도"][:4]}')
                                 chosen_text = format_docs(chosen_doc)
+                                print("chosen_doc", chosen_doc) # test
 
                                 llm_manager.set_llm_type('grad_engineer_msi_table')  # 표 이해 gpt ----------------------------------
                                 chain = llm_manager.get_chain()
                                 table_info = chain.invoke({'msi_table': chosen_text})
+                                print("table 이해: ", table_info) # test
 
                                 llm_manager.set_llm_type('grad_engineer_msi')  # msi gpt ------------------------
                                 chain = llm_manager.get_chain()
@@ -613,14 +619,17 @@ if __name__ == '__main__':
                                     search_type='mmr',
                                     search_kwargs={'k': 1, 'lambda_mult': 0.5}
                                 )
+
                                 chosen_doc = retriever.invoke(stu_info["입학 년도"])
                                 chosen_text = format_docs(chosen_doc)
+
 
                                 llm_manager.set_llm_type('grad_engineer_subj_table')  # 표 이해 gpt --------------------
                                 chain = llm_manager.get_chain()
                                 table_info = chain.invoke({
                                     'major': stu_info['학부/학과'],
                                     'engineer_table': chosen_text})
+
 
                                 llm_manager.set_llm_type('grad_engineer_subj')  # 공학 필수 과목 gpt --------------------
                                 chain = llm_manager.get_chain()
