@@ -67,7 +67,7 @@ def make_folders():
 def modify_uploaded_md():
     # upload 된 파일들
     raw_mds = [f for f in os.listdir(current_dir + 'upload') if
-               f.endswith('.md') and os.path.isfile(os.path.join('upload', f))]
+               f.endswith('.md') and os.path.isfile(os.path.join(current_dir + 'upload', f))]
 
     curriculum_summary = dict() # 2025_1 학기 균형 영역
     synonym_mapping = dict()    # 동의어 이름이 속한 동의어 집합을 매핑하는 사전 생성

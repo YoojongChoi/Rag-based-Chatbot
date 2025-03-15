@@ -58,14 +58,14 @@ class VectorStoreManager:
         if not self._visited[category]:
             print(f"{category} Vectorstore 로드중")
             try:
-                category_path = os.path.join(current_dir + f'./db/{category}')
+                category_path = os.path.join(current_dir + f'db/{category}')
                 for topic_folder in os.listdir(category_path):
-                    topic_folder_path = os.path.join(current_dir + f'{category_path}/{topic_folder}')
+                    topic_folder_path = os.path.join(f'{category_path}/{topic_folder}')
 
                     topic_vectorstore = []
 
                     for detail_folder in os.listdir(topic_folder_path):
-                        detail_folder_path = os.path.join(current_dir + f'{topic_folder_path}/{detail_folder}')
+                        detail_folder_path = os.path.join(f'{topic_folder_path}/{detail_folder}')
                         vectorstore = FAISS.load_local(
                             detail_folder_path,
                             self._embeddings_model,
@@ -355,10 +355,10 @@ class LlmManager:
 
 class MdManager:
     def __init__(self):
-        self._file_path = current_dir
+        self._file_path = None
 
     def set_path(self, file_path):
-        self._file_path += file_path
+        self._file_path = file_path
 
     def get_dictionary(self):
         with open(self._file_path, "r", encoding="utf-8") as f:
