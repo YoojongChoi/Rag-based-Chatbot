@@ -66,7 +66,7 @@ def make_folders():
 
 def modify_uploaded_md():
     # upload 된 파일들
-    raw_mds = [f for f in os.listdir('upload') if
+    raw_mds = [f for f in os.listdir(current_dir + 'upload') if
                f.endswith('.md') and os.path.isfile(os.path.join('upload', f))]
 
     curriculum_summary = dict() # 2025_1 학기 균형 영역

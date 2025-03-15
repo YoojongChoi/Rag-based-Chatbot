@@ -16,6 +16,7 @@ from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 from typing import List, Dict
 from datetime import datetime
+from langchain_core.documents import Document
 import base64
 
 
@@ -384,7 +385,8 @@ class ConversationMemory:
         )
         # FAISS 벡터 스토어 초기화
         self._vector_store = None
-        self._path = 'chat_history'
+        self._path = current_dir + 'chat_history'
+        self._doc = []
 
     def add_conversation(self, user_input: str, ai_response: str) -> None:
         # 텍스트와 메타데이터 결합
@@ -403,6 +405,10 @@ class ConversationMemory:
                 metadatas=[metadata],
                 distance_strategy=DistanceStrategy.COSINE
             )
+            
+            doc = Document(text)
+            doc.metadata = metadata
+            self._doc.append(doc)
         else:
             self._vector_store.add_texts(
                 texts=[text],
