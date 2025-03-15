@@ -13,6 +13,9 @@ import os
 from selenium.common.exceptions import TimeoutException
 
 
+current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
+
+
 # 개인 정보 ---------------------------------
 def personalInfo(ID, PW):
     # ChromeDriver 경로 설정
@@ -91,7 +94,7 @@ def personalInfo(ID, PW):
     finally:
         # 브라우저 닫기
         driver.quit()
-        #save_to_md("Graduation/personal_info.md", "dictionary", stu_info)
+
 
         return stu_info
 
@@ -254,7 +257,6 @@ def lectureEval_everytime(ID, PW):
     finally:
         # 브라우저 닫기
         driver.quit()
-        #save_to_md("eval/lectures_eval.md", "list_in_dictionary", lectures)
         return lectures
 
 

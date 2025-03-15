@@ -506,7 +506,7 @@ if __name__ == '__main__':
         print("gpt가 선택한 카테고리: ----------------------------------")
         print(response)
         '''
-        response = 'Academic Info'
+        response = 'Graduation'
 
         # 해당 category vs 질문  -----------------------------------------------------------------
         match response:
