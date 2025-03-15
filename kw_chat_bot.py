@@ -18,6 +18,7 @@ from typing import List, Dict
 from datetime import datetime
 from langchain_core.documents import Document
 import base64
+import joblib
 
 
 current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
@@ -407,15 +408,18 @@ class ConversationMemory:
                 metadatas=[metadata],
                 distance_strategy=DistanceStrategy.COSINE
             )
-            
-            doc = Document(text)
-            doc.metadata = metadata
-            self._doc.append(doc)
+
         else:
             self._vector_store.add_texts(
                 texts=[text],
                 metadatas=[metadata]
             )
+            
+        #save vector for keyword search
+        doc = Document(text)
+        doc.metadata = metadata
+        self._doc.append(doc)
+        
 
     def search(self, query: str, k: int = 5) -> List[Dict]:
         # 유사도 검색 수행
@@ -428,6 +432,7 @@ class ConversationMemory:
     def save(self) -> None:
         # 벡터 스토어와 대화 기록 저장
         self._vector_store.save_local(self._path)
+        joblib.dump(self._doc, self._path + "\\keyword.joblib")
 
 
     def load(self) -> None:
