@@ -20,6 +20,8 @@ from langchain_core.documents import Document
 import base64
 
 
+current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
+
 
 def format_docs(docs):
     return '\n\n'.join([d.page_content for d in docs])
@@ -56,14 +58,14 @@ class VectorStoreManager:
         if not self._visited[category]:
             print(f"{category} Vectorstore 로드중")
             try:
-                category_path = os.path.join(f'./db/{category}')
+                category_path = os.path.join(current_dir + f'./db/{category}')
                 for topic_folder in os.listdir(category_path):
-                    topic_folder_path = os.path.join(f'{category_path}/{topic_folder}')
+                    topic_folder_path = os.path.join(current_dir + f'{category_path}/{topic_folder}')
 
                     topic_vectorstore = []
 
                     for detail_folder in os.listdir(topic_folder_path):
-                        detail_folder_path = os.path.join(f'{topic_folder_path}/{detail_folder}')
+                        detail_folder_path = os.path.join(current_dir + f'{topic_folder_path}/{detail_folder}')
                         vectorstore = FAISS.load_local(
                             detail_folder_path,
                             self._embeddings_model,
@@ -353,10 +355,10 @@ class LlmManager:
 
 class MdManager:
     def __init__(self):
-        self._file_path = None
+        self._file_path = current_dir
 
     def set_path(self, file_path):
-        self._file_path = file_path
+        self._file_path += file_path
 
     def get_dictionary(self):
         with open(self._file_path, "r", encoding="utf-8") as f:
@@ -441,7 +443,7 @@ class ConversationMemory:
 if __name__ == '__main__':
     # 기본 세팅
     # os.environ["USER_AGENT"] = os.getenv("USER_AGENT", "MyPythonApp")       # 이부분 이상함
-    dotenv_path = r"C:\Users\user\PycharmProjects\pythonProject\env.env"
+    dotenv_path = current_dir + r"nv.env"
     if load_dotenv(dotenv_path):
         print("env 파일이 성공적으로 로드되었습니다.")
     logging.langsmith("Graduation Project")  # LangSmith 추적 설정
@@ -543,7 +545,7 @@ if __name__ == '__main__':
                         elif idx == 2:
 
                             # 교양 균형 영역
-                            md_manager.set_path('upload/Graduation/LiberalArts/curriculum_summary.md')
+                            md_manager.set_path(current_dir + 'upload/Graduation/LiberalArts/curriculum_summary.md')
                             curriculum_summary = md_manager.get_dictionary()
 
                             excluded_subj = {'체육실기', '음악실기', '미술실기'}
@@ -655,7 +657,7 @@ if __name__ == '__main__':
 
             case 'Food':
                 print("음식 평가 카테고리")
-                md_manager.set_path('upload/Food/food/kw_restaurants.md')
+                md_manager.set_path(current_dir + 'upload/Food/food/kw_restaurants.md')
                 content = md_manager.get_content()
 
                 reference_data = [{"role": "user", "content": content}]
