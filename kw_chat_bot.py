@@ -6,6 +6,7 @@ from langchain_openai import ChatOpenAI  # OpenAI의 챗봇과 임베딩
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores.utils import DistanceStrategy
 from langchain.prompts import ChatPromptTemplate
+from langchain.retrievers import BM25Retriever, EnsembleRetriever
 import crawling
 from langchain_teddynote import logging
 import ast
@@ -421,7 +422,20 @@ class ConversationMemory:
         if self._vector_store is None:
             return []
 
-        docs = self._vector_store.similarity_search(query, k=k)
+        # Dense vector search
+        Dretriever = self._vector_store.similarity_search(query, k=k)
+        
+        # Keyword search
+        Kretriever = BM25Retriever.from_documents(self._doc)
+        Kretriever.k = k
+
+        Eretriever = EnsembleRetriever(
+            retrievers= [Kretriever, Dretriever],
+            weights=[0.4, 0.6],
+        )
+
+        docs = Eretriever.invoke(query)
+
         return [doc.metadata for doc in docs]
 
     def save(self) -> None:
@@ -437,6 +451,8 @@ class ConversationMemory:
             distance_strategy=DistanceStrategy.COSINE,
             allow_dangerous_deserialization=True  # 주의: 신뢰할 수 있는 경로에서만 사용
         )
+
+        self._doc = joblib.load(self._path + "\\keyword.joblib")
 
 
 if __name__ == '__main__':
@@ -481,14 +497,14 @@ if __name__ == '__main__':
             break
 
         # 카테고리 gpt ------------------------------------------------------------
-        '''
+        
         llm_manager.set_llm_type('category')
         chain = llm_manager.get_chain()
         response = chain.invoke({'question': query})
         print("gpt가 선택한 카테고리: ----------------------------------")
         print(response)
-        '''
-        response = 'Graduation'
+        
+        # response = 'Graduation'
 
         # 해당 category vs 질문  -----------------------------------------------------------------
         match response:
