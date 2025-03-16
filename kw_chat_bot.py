@@ -18,6 +18,7 @@ from typing import List, Dict
 from datetime import datetime
 from langchain_core.documents import Document
 import base64
+import joblib
 
 
 current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
@@ -58,14 +59,14 @@ class VectorStoreManager:
         if not self._visited[category]:
             print(f"{category} Vectorstore 로드중")
             try:
-                category_path = os.path.join(current_dir + f'./db/{category}')
+                category_path = os.path.join(current_dir + f'db/{category}')
                 for topic_folder in os.listdir(category_path):
-                    topic_folder_path = os.path.join(current_dir + f'{category_path}/{topic_folder}')
+                    topic_folder_path = os.path.join(f'{category_path}/{topic_folder}')
 
                     topic_vectorstore = []
 
                     for detail_folder in os.listdir(topic_folder_path):
-                        detail_folder_path = os.path.join(current_dir + f'{topic_folder_path}/{detail_folder}')
+                        detail_folder_path = os.path.join(f'{topic_folder_path}/{detail_folder}')
                         vectorstore = FAISS.load_local(
                             detail_folder_path,
                             self._embeddings_model,
@@ -355,10 +356,10 @@ class LlmManager:
 
 class MdManager:
     def __init__(self):
-        self._file_path = current_dir
+        self._file_path = None
 
     def set_path(self, file_path):
-        self._file_path += file_path
+        self._file_path = file_path
 
     def get_dictionary(self):
         with open(self._file_path, "r", encoding="utf-8") as f:
@@ -407,15 +408,18 @@ class ConversationMemory:
                 metadatas=[metadata],
                 distance_strategy=DistanceStrategy.COSINE
             )
-            
-            doc = Document(text)
-            doc.metadata = metadata
-            self._doc.append(doc)
+
         else:
             self._vector_store.add_texts(
                 texts=[text],
                 metadatas=[metadata]
             )
+            
+        #save vector for keyword search
+        doc = Document(text)
+        doc.metadata = metadata
+        self._doc.append(doc)
+        
 
     def search(self, query: str, k: int = 5) -> List[Dict]:
         # 유사도 검색 수행
@@ -428,6 +432,7 @@ class ConversationMemory:
     def save(self) -> None:
         # 벡터 스토어와 대화 기록 저장
         self._vector_store.save_local(self._path)
+        joblib.dump(self._doc, self._path + "\\keyword.joblib")
 
 
     def load(self) -> None:
