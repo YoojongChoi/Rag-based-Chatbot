@@ -28,10 +28,12 @@
 
 
 ## 🧑‍🤝‍🧑Team Member
-양문석: Web 
-윤서정: Web
-최유종: RAG
-최지원: RAG
+#### RAG based LLM
+최유종, 최지원 
+
+#### Web 
+양문석, 윤서정 
+In detail: https://github.com/yangmunseok/KWChatBot 
 
 
 ## 📝메모장
