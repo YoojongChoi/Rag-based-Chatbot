@@ -31,9 +31,8 @@
 #### RAG based LLM
 최유종, 최지원 
 
-#### Web 
+#### Web (in detail: https://github.com/yangmunseok/KWChatBot) 
 양문석, 윤서정 
-In detail: https://github.com/yangmunseok/KWChatBot 
 
 
 ## 📝메모장
