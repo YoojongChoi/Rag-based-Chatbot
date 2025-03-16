@@ -1,16 +1,5 @@
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from bs4 import BeautifulSoup
-import time
-import requests
-from selenium.common.exceptions import StaleElementReferenceException
 import re
-from selenium.webdriver.chrome.options import Options
 import os
-from selenium.common.exceptions import TimeoutException
 import crawling
 
 
@@ -375,7 +364,6 @@ if __name__ == "__main__":
     make_folders()  # 기본 세팅
     modify_uploaded_md()
     make_md_via_crawling()
-
 
 
 

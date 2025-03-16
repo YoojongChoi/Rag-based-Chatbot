@@ -1,25 +1,19 @@
 from dotenv import load_dotenv
 import os
-
 from langchain_community.vectorstores import FAISS
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
-from langchain_openai import ChatOpenAI # OpenAI의 챗봇과 임베딩
-
+from langchain_openai import ChatOpenAI  # OpenAI의 챗봇과 임베딩
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores.utils import DistanceStrategy
 from langchain.prompts import ChatPromptTemplate
 import crawling
 from langchain_teddynote import logging
 import ast
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_community.chat_message_histories import ChatMessageHistory
 from typing import List, Dict
 from datetime import datetime
 from langchain_core.documents import Document
 import base64
 import joblib
-
 
 current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
 
@@ -31,6 +25,7 @@ def format_docs(docs):
 def get_personal_info(stu_id, stu_pw):
     stu_info_dict = crawling.personalInfo(stu_id, stu_pw)
     return stu_info_dict
+
 
 def encode_image(image_path):
     with open(image_path, "rb") as image_file:
@@ -59,14 +54,15 @@ class VectorStoreManager:
         if not self._visited[category]:
             print(f"{category} Vectorstore 로드중")
             try:
-                category_path = os.path.join(current_dir + f'db/{category}')
+                category_path = os.path.join(current_dir + f'db\\{category}')
+
                 for topic_folder in os.listdir(category_path):
-                    topic_folder_path = os.path.join(f'{category_path}/{topic_folder}')
+                    topic_folder_path = os.path.join(f'{category_path}\\{topic_folder}')
 
                     topic_vectorstore = []
 
                     for detail_folder in os.listdir(topic_folder_path):
-                        detail_folder_path = os.path.join(f'{topic_folder_path}/{detail_folder}')
+                        detail_folder_path = os.path.join(f'{topic_folder_path}\\{detail_folder}')
                         vectorstore = FAISS.load_local(
                             detail_folder_path,
                             self._embeddings_model,
@@ -95,7 +91,6 @@ class LlmManager:
         self._llm_type = None
         self._template = None
 
-
     def set_llm_type(self, llm_type):
         self._llm_type = llm_type
 
@@ -113,7 +108,7 @@ class LlmManager:
 
                 [Question]
                 {question}
-                
+
                 Category Name:
                 '''
 
@@ -184,7 +179,7 @@ class LlmManager:
 
             ### 출력 요건
             - 추출한 딕셔너리만 출력하세요.
-        
+
             ### 출력 예시
             - "총 8영역, 4영역 포함, 10과목"
             - "총 7영역, 1영역 포함, 7과목"    
@@ -230,7 +225,7 @@ class LlmManager:
             [공학인증 표]
             {engineer_table}
 
-            
+
             ### 출력 지침
             1. 학생 전공{major}과 가장 비슷한 행을 하나 찾습니다.
             2. 해당 행에서 **마지막 "전공" 열의 값만 추출**합니다.
@@ -343,10 +338,11 @@ class LlmManager:
     def get_chat_history_chain(self):
         prompt = ChatPromptTemplate.from_messages(
             [
-                ("system", "You are a helpful and precise Kwangwoon University assistant. Answer the question to the best of your ability based on the reference data. The provided chat history includes facts about the user, you are speaking with.",),
+                ("system",
+                 "You are a helpful and precise Kwangwoon University assistant. Answer the question to the best of your ability based on the reference data. The provided chat history includes facts about the user, you are speaking with.",),
                 ("placeholder", "{chat_history}"),
                 ("placeholder", "{reference_data}"),
-                #("placeholder", "{uploaded_image}"),
+                # ("placeholder", "{uploaded_image}"),
                 ("user", "{input}"),
             ]
         )
@@ -414,12 +410,11 @@ class ConversationMemory:
                 texts=[text],
                 metadatas=[metadata]
             )
-            
-        #save vector for keyword search
+
+        # save vector for keyword search
         doc = Document(text)
         doc.metadata = metadata
         self._doc.append(doc)
-        
 
     def search(self, query: str, k: int = 5) -> List[Dict]:
         # 유사도 검색 수행
@@ -434,7 +429,6 @@ class ConversationMemory:
         self._vector_store.save_local(self._path)
         joblib.dump(self._doc, self._path + "\\keyword.joblib")
 
-
     def load(self) -> None:
         # 벡터 스토어와 대화 기록 로드
         self._vector_store = FAISS.load_local(
@@ -447,10 +441,10 @@ class ConversationMemory:
 
 if __name__ == '__main__':
     # 기본 세팅
-    # os.environ["USER_AGENT"] = os.getenv("USER_AGENT", "MyPythonApp")       # 이부분 이상함
-    dotenv_path = current_dir + r"nv.env"
+    dotenv_path = current_dir + r"env.env"
     if load_dotenv(dotenv_path):
         print("env 파일이 성공적으로 로드되었습니다.")
+
     logging.langsmith("Graduation Project")  # LangSmith 추적 설정
 
     # vectorstore, LLM, md 관리자
@@ -464,7 +458,7 @@ if __name__ == '__main__':
         memory.load()
 
     # 개인 정보
-    #stu_info = get_personal_info('', '')
+    # stu_info = get_personal_info('', '')
 
     stu_info = {'학부/학과': '소프트웨어학부 소프트웨어전공', '입학 년도': '2020년도 신입학자', '학번': '2020203068', '이름': '최유종', '학적상황': '4학년 재학',
                 '학위 과정': '공학 프로그램', '전공 학점': '63', '교양 학점': '61', '기타 학점': '8', '총 학점': '132',
@@ -528,7 +522,8 @@ if __name__ == '__main__':
                             chosen_doc = retriever.invoke(stu_info["입학 년도"])
                             chosen_text = format_docs(chosen_doc)
 
-                            llm_manager.set_llm_type('grad_credits_table')  # 학점 표 이해 gpt ---------------------------------------
+                            llm_manager.set_llm_type(
+                                'grad_credits_table')  # 학점 표 이해 gpt ---------------------------------------
                             chain = llm_manager.get_chain()
                             table_dict = chain.invoke({
                                 'major': stu_info['학부/학과'],
@@ -550,7 +545,7 @@ if __name__ == '__main__':
                         elif idx == 2:
 
                             # 교양 균형 영역
-                            md_manager.set_path(current_dir + 'upload/Graduation/LiberalArts/curriculum_summary.md')
+                            md_manager.set_path(current_dir + 'upload\\Graduation\\LiberalArts\\curriculum_summary.md')
                             curriculum_summary = md_manager.get_dictionary()
 
                             excluded_subj = {'체육실기', '음악실기', '미술실기'}
@@ -613,18 +608,21 @@ if __name__ == '__main__':
                                     search_type='mmr',
                                     search_kwargs={'k': 1, 'lambda_mult': 0.5}
                                 )
-                                chosen_doc = retriever.invoke(f'# {stu_info["학부/학과"].split()[0]}_{stu_info["입학 년도"][:4]}')
+                                chosen_doc = retriever.invoke(
+                                    f'# {stu_info["학부/학과"].split()[0]}_{stu_info["입학 년도"][:4]}')
                                 chosen_text = format_docs(chosen_doc)
-                                print("chosen_doc", chosen_doc) # test
+                                print("chosen_doc", chosen_doc)  # test
 
-                                llm_manager.set_llm_type('grad_engineer_msi_table')  # 표 이해 gpt ----------------------------------
+                                llm_manager.set_llm_type(
+                                    'grad_engineer_msi_table')  # 표 이해 gpt ----------------------------------
                                 chain = llm_manager.get_chain()
                                 table_info = chain.invoke({'msi_table': chosen_text})
-                                print("table 이해: ", table_info) # test
+                                print("table 이해: ", table_info)  # test
 
                                 llm_manager.set_llm_type('grad_engineer_msi')  # msi gpt ------------------------
                                 chain = llm_manager.get_chain()
-                                engineer_msi_response = chain.invoke({'msi_info': table_info, 'attended_sbj': stu_info['수강한 과목']})
+                                engineer_msi_response = chain.invoke(
+                                    {'msi_info': table_info, 'attended_sbj': stu_info['수강한 과목']})
                                 print("4. 공학인증 MSI에 대한 평가-----------------------------\n", engineer_msi_response)
 
                                 # 2. 공학필수 과목
@@ -636,13 +634,11 @@ if __name__ == '__main__':
                                 chosen_doc = retriever.invoke(stu_info["입학 년도"])
                                 chosen_text = format_docs(chosen_doc)
 
-
                                 llm_manager.set_llm_type('grad_engineer_subj_table')  # 표 이해 gpt --------------------
                                 chain = llm_manager.get_chain()
                                 table_info = chain.invoke({
                                     'major': stu_info['학부/학과'],
                                     'engineer_table': chosen_text})
-
 
                                 llm_manager.set_llm_type('grad_engineer_subj')  # 공학 필수 과목 gpt --------------------
                                 chain = llm_manager.get_chain()
@@ -651,7 +647,6 @@ if __name__ == '__main__':
                                     'required_sbj': table_info})
 
                                 print("5. 공학필수과목에 대한 평가 --------------------\n", engineer_subj_response)
-
 
                     grad_reference_data = '\n\n\n'.join(
                         [credit_gpt_response, liberalArts_gpt_response, major_gpt_response, engineer_msi_response,
@@ -662,14 +657,14 @@ if __name__ == '__main__':
 
             case 'Food':
                 print("음식 평가 카테고리")
-                md_manager.set_path(current_dir + 'upload/Food/food/kw_restaurants.md')
+                md_manager.set_path(current_dir + 'upload\\Food\\food\\kw_restaurants.md')
                 content = md_manager.get_content()
 
                 reference_data = [{"role": "user", "content": content}]
 
             case 'Course':
                 print("강의 카테고리")
-                if not vec_manager.visited('Course'):   # 강의 카테고리 처음 방문시
+                if not vec_manager.visited('Course'):  # 강의 카테고리 처음 방문시
                     course_vecs = vec_manager.get_vectorstores("Course")  # 강의평가 vectorstore 로드
 
                 retriever = course_vecs[0][0].as_retriever(
@@ -683,7 +678,7 @@ if __name__ == '__main__':
 
             case 'Academic Info':
                 print("공지사항 카테고리")
-                notices = crawling.academic_info_kw()     # 공지사항 - 광운대 사이트 크롤링
+                notices = crawling.academic_info_kw()  # 공지사항 - 광운대 사이트 크롤링
                 reference_data = [{"role": "user", "content": notices}]
 
             case 'None':
@@ -716,7 +711,6 @@ if __name__ == '__main__':
             {"input": query, 'reference_data': reference_data, 'chat_history': memory.search(query)}
         )
 
-
         print("\n\nfinal response: -------------------------------------------\n", final_response)
         memory.add_conversation(query, final_response)
 
@@ -731,4 +725,3 @@ if __name__ == '__main__':
     memory.save()
 
     exit(0)
-

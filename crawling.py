@@ -9,11 +9,8 @@ import requests
 from selenium.common.exceptions import StaleElementReferenceException
 import re
 from selenium.webdriver.chrome.options import Options
-import os
 from selenium.common.exceptions import TimeoutException
 
-
-current_dir = os.path.dirname(os.path.abspath(__file__)) + "\\"
 
 
 # 개인 정보 ---------------------------------
@@ -530,4 +527,3 @@ def academic_info_kw():
     notices = [f'## {li.get_text(strip=True)}' for li in soup.find_all("li", class_="top-notice")]
     notices = "\n\n".join(notices)
     return notices
-
