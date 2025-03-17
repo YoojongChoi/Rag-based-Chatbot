@@ -386,7 +386,7 @@ class ConversationMemory:
         # FAISS 벡터 스토어 초기화
         self._vector_store = None
         self._path = current_dir + 'chat_history'
-        self._doc = []
+        self._doc = None
 
     def add_conversation(self, user_input: str, ai_response: str) -> None:
         # 텍스트와 메타데이터 결합
@@ -413,17 +413,21 @@ class ConversationMemory:
             )
 
         # save vector for keyword search
-        doc = Document(text)
-        doc.metadata = metadata
-        self._doc.append(doc)
-
+        doc = Document(page_content=text, metadata=metadata)
+        # doc.page_content = text
+        # doc.metadata = metadata
+        if self._doc == None:
+            self._doc = [doc]
+        else:
+            self._doc.append(doc)
+ 
     def search(self, query: str, k: int = 5) -> List[Dict]:
         # 유사도 검색 수행
         if self._vector_store is None:
             return []
 
         # Dense vector search
-        Dretriever = self._vector_store.similarity_search(query, k=k)
+        Dretriever = self._vector_store.as_retriever(search_kwargs={"k": k})
         
         # Keyword search
         Kretriever = BM25Retriever.from_documents(self._doc)

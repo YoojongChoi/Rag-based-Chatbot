@@ -6,3 +6,4 @@ __pycache__/crawling.cpython-311.pyc
 /chat_history
 /__pycache__
 /chat_history
+chat_history/index.pkl
