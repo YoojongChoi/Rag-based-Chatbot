@@ -39,8 +39,15 @@ To address GPT-4o’s limitations in parsing markdown-formatted tables, a dual-m
 This approach significantly improved accuracy in evaluating complex graduation criteria, utilizing 9 specialized GPT-4o instances for diverse sub-tasks.
 
 #### 4. Chat History Management
-- coming soon...
+User-chatbot interactions are stored as chunks in the chat_history folder. During retrieval, a hybrid RAG model combines sparse (BM25) and dense (FAISS) retrieval techniques to identify the 5 most relevant historical interactions. 
 
+1) Ensemble Retriever (BM25, FAISS)
+- BM25 ranks documents based on term frequency and inverse document frequency (TF-IDF), prioritizing exact keyword matches.
+- The same document splits used for dense vector embeddings are stored in their raw text format to ensure consistency between retrievers.
+
+2) Reciprocal Rank Fusion
+![Image](https://github.com/user-attachments/assets/11a95d92-7033-453e-9255-25d2a2cb4020)
+- The dense retriever is assigned a higher weight (0.6) to emphasize semantic understanding, while BM25 (0.4) ensures keyword precision. And get top 5 chunks.
 
 ### 📌 Duration
 - 2025.01 ~ 2025.03
