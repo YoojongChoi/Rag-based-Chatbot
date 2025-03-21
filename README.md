@@ -62,7 +62,7 @@ This approach significantly improved accuracy in evaluating complex graduation c
 - **Setting Up:** To store the vectorstore, create an 'upload' folder and upload the necessary md files -> Run create_md_files.py -> Run save_vectorstore.py.
 - **Running:** Run kw_chat_bot.py  (Note: the vectorstore must already exist). 
 
-### 📌 Reminding
+### 📌 Reminder
 #### Don't Forget to Enter ID and PW
 - **make_md_via_crawling function (create_md_files.py):** enter Everytime ID, PW. 
 - **get_personal_info function (kw_chat_bot.py):** enter klas ID, PW
