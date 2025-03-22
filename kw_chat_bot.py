@@ -6,7 +6,8 @@ from langchain_openai import ChatOpenAI  # OpenAI의 챗봇과 임베딩
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.vectorstores.utils import DistanceStrategy
 from langchain.prompts import ChatPromptTemplate
-from langchain.retrievers import BM25Retriever, EnsembleRetriever
+from langchain.retrievers import EnsembleRetriever
+from langchain_community.retrievers import BM25Retriever
 import crawling
 from langchain_teddynote import logging
 import ast
@@ -420,21 +421,21 @@ class ConversationMemory:
             self._doc = [doc]
         else:
             self._doc.append(doc)
- 
+
     def search(self, query: str, k: int = 5) -> List[Dict]:
         # 유사도 검색 수행
-        if self._vector_store is None:
+        if self.visited():
             return []
 
         # Dense vector search
         Dretriever = self._vector_store.as_retriever(search_kwargs={"k": k})
-        
+
         # Keyword search
         Kretriever = BM25Retriever.from_documents(self._doc)
         Kretriever.k = k
 
         Eretriever = EnsembleRetriever(
-            retrievers= [Kretriever, Dretriever],
+            retrievers=[Kretriever, Dretriever],
             weights=[0.4, 0.6],
         )
 
@@ -442,8 +443,17 @@ class ConversationMemory:
 
         return [doc.metadata for doc in docs]
 
+    def visited(self) -> bool:
+        if self._vector_store is None:
+            return False
+        else:
+            return True
+
     def save(self) -> None:
         # 벡터 스토어와 대화 기록 저장
+        if self.visited():
+            return None
+
         self._vector_store.save_local(self._path)
         joblib.dump(self._doc, self._path + "\\keyword.joblib")
 
@@ -501,13 +511,13 @@ if __name__ == '__main__':
             break
 
         # 카테고리 gpt ------------------------------------------------------------
-        
+
         llm_manager.set_llm_type('category')
         chain = llm_manager.get_chain()
         response = chain.invoke({'question': query})
         print("gpt가 선택한 카테고리: ----------------------------------")
         print(response)
-        
+
         # response = 'Graduation'
 
         # 해당 category vs 질문  -----------------------------------------------------------------
@@ -550,7 +560,8 @@ if __name__ == '__main__':
                                 'stu_id': f"{stu_info['학번'][:4]}학번",
                                 'credits_table': chosen_text})
 
-                            llm_manager.set_llm_type('grad_credits')  # 학점 gpt ------------------------------------------
+                            llm_manager.set_llm_type(
+                                'grad_credits')  # 학점 gpt ------------------------------------------
                             chain = llm_manager.get_chain()
                             credit_gpt_response = chain.invoke({
                                 'major_type': stu_info['전공 타입'],
