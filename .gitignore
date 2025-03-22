@@ -1,6 +1,9 @@
-nv.env
+env.env
 db
 _pycache_
 __pycache__/crawling.cpython-311.pyc
 __pycache__/crawling.cpython-311.pyc
 /chat_history
+/__pycache__
+/chat_history
+chat_history/index.pkl
