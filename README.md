@@ -33,6 +33,7 @@ Each subfolder’s content was converted into vector embeddings using FAISS and 
 #### 3. Handling Complex Tabular Data
 To address GPT-4o’s limitations in parsing markdown-formatted tables, a dual-model approach was implemented for graduation-related queries:
 
+**Our Approach: LLM (for understanding) --> LLM (for comparing)**
 1) **Schema Extraction:** GPT-4o instance extracts structured schemas from markdown tables.
 2) **Student-Specific Comparison:** A separate GPT-4o instance cross-references the extracted schema with the student’s academic information.
 
