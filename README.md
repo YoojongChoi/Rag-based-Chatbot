@@ -13,8 +13,8 @@
 
 
 ### 📌 Structure
-![Image](https://github.com/user-attachments/assets/9f1b6372-eb7f-4e88-b16c-e157e98c4855)
-![Image](https://github.com/user-attachments/assets/7c43a3da-a7e4-41ed-b13f-9253739a1594)
+![Image](https://github.com/user-attachments/assets/1265e9ab-ae4f-4811-b7c9-39b62a676854)
+![Image](https://github.com/user-attachments/assets/474c5dc2-b6ff-4112-9fb7-b7b6b548f54e)
 
 
 ### 📌 Methodology
