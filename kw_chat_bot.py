@@ -424,7 +424,7 @@ class ConversationMemory:
 
     def search(self, query: str, k: int = 5) -> List[Dict]:
         # 유사도 검색 수행
-        if self.visited():
+        if not self.visited():
             return []
 
         # Dense vector search
@@ -451,7 +451,7 @@ class ConversationMemory:
 
     def save(self) -> None:
         # 벡터 스토어와 대화 기록 저장
-        if self.visited():
+        if not self.visited():
             return None
 
         self._vector_store.save_local(self._path)
