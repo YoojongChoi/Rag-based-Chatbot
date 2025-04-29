@@ -15,7 +15,7 @@
 ### 📌 Structure
 ![Image](https://github.com/user-attachments/assets/1265e9ab-ae4f-4811-b7c9-39b62a676854)
 ![Image](https://github.com/user-attachments/assets/474c5dc2-b6ff-4112-9fb7-b7b6b548f54e)
-
+![Image](https://github.com/user-attachments/assets/3a43f95b-af64-4f76-8e91-c171dec75a51)
 
 ### 📌 Methodology
 #### 1. Structured Datastore Construction
